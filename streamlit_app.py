@@ -204,7 +204,7 @@ class FarmYOLOTrainer:
             format: Export format ('onnx', 'torchscript', 'tflite', 'edgetpu', etc.)
         """
         if model_path is None:
-            model_path = f'{self.project_name}/yolov8{self.model_size}_farm/weights/best.pt'
+            model_path = 'best.pt'
         
         model = YOLO(model_path)
         model.export(format=format)
@@ -255,7 +255,7 @@ def main():
     # trainer.export_model(format='onnx')
     
     print("\n✓ Training pipeline completed successfully!")
-    print(f"Best model saved at: {trainer.project_name}/yolov8{MODEL_SIZE}_best.pt")
+    print(f"Best model saved at: {trainer.project_name}/yolov8{MODEL_SIZE}_farm/weights/best.pt")
 
 if __name__ == '__main__':
     main()
