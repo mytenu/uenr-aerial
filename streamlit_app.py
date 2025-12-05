@@ -671,7 +671,7 @@ def main():
                 International Development Research Centre (IDRC)
             </p>
             <p style='margin-top: 1.5rem; font-size: 0.9rem; opacity: 0.8;'>
-                © 2024 UENR-ATPS-IDRC | All Rights Reserved
+                © 2025 UENR-ATPS-IDRC | All Rights Reserved
             </p>
         </div>
     """, unsafe_allow_html=True)
