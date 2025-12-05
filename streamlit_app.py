@@ -267,7 +267,7 @@ def main():
         st.markdown("### Model Settings")
         model_path = st.text_input(
             "Model Path",
-            value="farm_detection/yolov8n_farm/weights/best.pt",
+            value="best.pt",
             help="Path to your trained YOLO model"
         )
         
