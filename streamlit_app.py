@@ -1,6 +1,7 @@
 """
 Streamlit Deployment App for YOLO Farm Detection Model
 Detects: Soil, Healthy Crops, and Unhealthy Crops from Drone Imagery
+Developed by UENR-ATPS-IDRC
 """
 
 import streamlit as st
@@ -17,43 +18,183 @@ import pandas as pd
 
 # Page configuration
 st.set_page_config(
-    page_title="Farm Detection System",
+    page_title="UENR Farm Detection System",
     page_icon="🌾",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"
 )
 
-# Custom CSS for better UI
+# Enhanced Custom CSS for beautiful UI
 st.markdown("""
     <style>
+    /* Main container styling */
     .main {
-        padding: 0rem 1rem;
+        padding: 0rem 2rem;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     }
+    
+    /* Header styling */
+    .header-container {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        text-align: center;
+    }
+    
+    .header-title {
+        color: white;
+        font-size: 3rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .header-subtitle {
+        color: #f0f0f0;
+        font-size: 1.3rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .header-org {
+        color: #ffd700;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-top: 1rem;
+        letter-spacing: 2px;
+    }
+    
+    /* Button styling */
     .stButton>button {
         width: 100%;
-        background-color: #4CAF50;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
-        height: 3em;
-        border-radius: 10px;
+        height: 3.5em;
+        border-radius: 12px;
         font-weight: bold;
+        font-size: 1.1rem;
+        border: none;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        transition: all 0.3s ease;
     }
+    
     .stButton>button:hover {
-        background-color: #45a049;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
     }
+    
+    /* Metric cards */
     .metric-card {
-        background-color: #f0f2f6;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        border-left: 5px solid #667eea;
+        transition: transform 0.3s ease;
     }
-    h1 {
+    
+    .metric-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 25px rgba(0,0,0,0.15);
+    }
+    
+    /* Tab styling */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 10px;
+        background: white;
+        padding: 10px;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .stTabs [data-baseweb="tab"] {
+        height: 60px;
+        border-radius: 8px;
+        padding: 0 2rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        border: none;
+    }
+    
+    .stTabs [aria-selected="true"] {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    /* Upload section */
+    .uploadedFile {
+        border: 3px dashed #667eea;
+        border-radius: 12px;
+        padding: 2rem;
+        background: white;
+    }
+    
+    /* Image containers */
+    .image-container {
+        background: white;
+        padding: 1rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        margin-bottom: 1rem;
+    }
+    
+    /* Section headers */
+    h1, h2, h3 {
         color: #2c3e50;
     }
-    h2 {
-        color: #34495e;
+    
+    /* Info boxes */
+    .stAlert {
+        border-radius: 12px;
+        border-left: 5px solid #667eea;
     }
-    h3 {
-        color: #4CAF50;
+    
+    /* Legend styling */
+    .legend-item {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        margin: 8px 0;
+        border-radius: 8px;
+        background: white;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        font-weight: 600;
+    }
+    
+    .legend-color {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        margin-right: 15px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    
+    /* Footer */
+    .footer {
+        text-align: center;
+        padding: 2rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 12px;
+        margin-top: 3rem;
+        color: white;
+    }
+    
+    /* Download button special styling */
+    .stDownloadButton>button {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+        border: none;
+        font-weight: bold;
+        border-radius: 12px;
+        padding: 0.75rem 2rem;
+        box-shadow: 0 4px 15px rgba(17, 153, 142, 0.4);
+    }
+    
+    .stDownloadButton>button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(17, 153, 142, 0.6);
     }
     </style>
     """, unsafe_allow_html=True)
@@ -73,6 +214,13 @@ CLASS_COLORS = {
     3: (128, 128, 128)     # Gray for other
 }
 
+CLASS_EMOJIS = {
+    0: '🟤',
+    1: '🟢',
+    2: '🔴',
+    3: '⚪'
+}
+
 
 @st.cache_resource
 def load_model(model_path):
@@ -85,23 +233,23 @@ def load_model(model_path):
         return None
 
 
-def process_image(image, model, conf_threshold, iou_threshold):
+def process_image(image, model):
     """Process single image and return results"""
     # Convert PIL Image to numpy array
     img_array = np.array(image)
     
-    # Run inference
+    # Run inference with fixed parameters
     results = model.predict(
         img_array,
-        conf=conf_threshold,
-        iou=iou_threshold,
+        conf=0.25,
+        iou=0.45,
         verbose=False
     )
     
     return results[0]
 
 
-def draw_detections(image, results, show_labels=True, show_conf=True):
+def draw_detections(image, results):
     """Draw bounding boxes on image"""
     img_array = np.array(image)
     
@@ -115,22 +263,17 @@ def draw_detections(image, results, show_labels=True, show_conf=True):
         x1, y1, x2, y2 = map(int, box)
         color = CLASS_COLORS.get(cls, (255, 255, 255))
         
-        # Draw rectangle
-        cv2.rectangle(img_array, (x1, y1), (x2, y2), color, 3)
+        # Draw rectangle with thicker lines
+        cv2.rectangle(img_array, (x1, y1), (x2, y2), color, 4)
         
         # Prepare label
-        label = ""
-        if show_labels:
-            label = CLASS_NAMES.get(cls, f"Class {cls}")
-        if show_conf:
-            label += f" {conf:.2f}" if label else f"{conf:.2f}"
+        label = f"{CLASS_NAMES.get(cls, f'Class {cls}')} {conf:.2f}"
         
         # Draw label background
-        if label:
-            (w, h), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.6, 2)
-            cv2.rectangle(img_array, (x1, y1 - 25), (x1 + w, y1), color, -1)
-            cv2.putText(img_array, label, (x1, y1 - 7),
-                       cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
+        (w, h), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.8, 2)
+        cv2.rectangle(img_array, (x1, y1 - 35), (x1 + w + 10, y1), color, -1)
+        cv2.putText(img_array, label, (x1 + 5, y1 - 10),
+                   cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
     
     return Image.fromarray(img_array)
 
@@ -166,15 +309,20 @@ def create_stats_charts(class_counts, class_conf):
             df_counts = pd.DataFrame(list(class_counts.items()), 
                                     columns=['Class', 'Count'])
             fig_counts = px.bar(df_counts, x='Class', y='Count',
-                              title='Detection Counts by Class',
+                              title='🔢 Detection Counts by Class',
                               color='Class',
                               color_discrete_map={
-                                  'Soil': 'brown',
-                                  'Healthy Crop': 'green',
-                                  'Unhealthy Crop': 'red',
-                                  'Other': 'gray'
+                                  'Soil': '#8B4513',
+                                  'Healthy Crop': '#228B22',
+                                  'Unhealthy Crop': '#FF4500',
+                                  'Other': '#808080'
                               })
-            fig_counts.update_layout(showlegend=False)
+            fig_counts.update_layout(
+                showlegend=False,
+                plot_bgcolor='rgba(0,0,0,0)',
+                paper_bgcolor='rgba(0,0,0,0)',
+                font=dict(size=14, color='#2c3e50')
+            )
             st.plotly_chart(fig_counts, use_container_width=True)
         else:
             st.info("No detections found")
@@ -185,19 +333,25 @@ def create_stats_charts(class_counts, class_conf):
             df_conf = pd.DataFrame(list(class_conf.items()), 
                                   columns=['Class', 'Avg Confidence'])
             fig_conf = px.bar(df_conf, x='Class', y='Avg Confidence',
-                            title='Average Confidence by Class',
+                            title='📊 Average Confidence by Class',
                             color='Class',
                             color_discrete_map={
-                                'Soil': 'brown',
-                                'Healthy Crop': 'green',
-                                'Unhealthy Crop': 'red',
-                                'Other': 'gray'
+                                'Soil': '#8B4513',
+                                'Healthy Crop': '#228B22',
+                                'Unhealthy Crop': '#FF4500',
+                                'Other': '#808080'
                             })
-            fig_conf.update_layout(showlegend=False, yaxis_range=[0, 1])
+            fig_conf.update_layout(
+                showlegend=False, 
+                yaxis_range=[0, 1],
+                plot_bgcolor='rgba(0,0,0,0)',
+                paper_bgcolor='rgba(0,0,0,0)',
+                font=dict(size=14, color='#2c3e50')
+            )
             st.plotly_chart(fig_conf, use_container_width=True)
 
 
-def process_video(video_path, model, conf_threshold, iou_threshold, progress_bar):
+def process_video(video_path, model, progress_bar):
     """Process video file and return annotated video"""
     cap = cv2.VideoCapture(video_path)
     
@@ -223,8 +377,8 @@ def process_video(video_path, model, conf_threshold, iou_threshold, progress_bar
         # Run inference
         results = model.predict(
             frame,
-            conf=conf_threshold,
-            iou=iou_threshold,
+            conf=0.25,
+            iou=0.45,
             verbose=False
         )[0]
         
@@ -251,293 +405,276 @@ def process_video(video_path, model, conf_threshold, iou_threshold, progress_bar
 
 
 def main():
-    # Header
-    st.markdown("<h1 style='text-align: center;'>🌾 Farm Detection System</h1>", 
-                unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center; color: #7f8c8d;'>AI-Powered Crop Health Analysis from Drone Imagery</p>", 
-                unsafe_allow_html=True)
-    st.markdown("---")
+    # Beautiful Header
+    st.markdown("""
+        <div class="header-container">
+            <div class="header-title">🌾 Farm Detection System</div>
+            <div class="header-subtitle">AI-Powered Crop Health Analysis from Drone Imagery</div>
+            <div class="header-org">UENR • ATPS • IDRC</div>
+        </div>
+    """, unsafe_allow_html=True)
     
-    # Sidebar
+    # Class Legend in sidebar (minimized)
     with st.sidebar:
-        st.image("https://img.icons8.com/color/96/000000/drone.png", width=100)
-        st.markdown("## ⚙️ Configuration")
-        
-        # Model selection
-        st.markdown("### Model Settings")
-        model_path = st.text_input(
-            "Model Path",
-            value="best.pt",
-            help="Path to your trained YOLO model"
-        )
-        
-        # Detection parameters
-        st.markdown("### Detection Parameters")
-        conf_threshold = st.slider(
-            "Confidence Threshold",
-            min_value=0.0,
-            max_value=1.0,
-            value=0.05,
-            step=0.05,
-            help="Minimum confidence for detections"
-        )
-        
-        iou_threshold = st.slider(
-            "IoU Threshold",
-            min_value=0.0,
-            max_value=1.0,
-            value=0.45,
-            step=0.05,
-            help="Intersection over Union threshold for NMS"
-        )
-        
-        # Display options
-        st.markdown("### Display Options")
-        show_labels = st.checkbox("Show Labels", value=True)
-        show_conf = st.checkbox("Show Confidence", value=True)
-        
-        # Class legend
-        st.markdown("### 📋 Class Legend")
+        st.markdown("### 📋 Detection Classes")
         for cls_id, cls_name in CLASS_NAMES.items():
-            color = CLASS_COLORS[cls_id]
-            st.markdown(
-                f"<div style='background-color: rgb{color}; padding: 5px; "
-                f"border-radius: 5px; margin: 5px 0; color: white;'>"
-                f"<b>{cls_name}</b></div>",
-                unsafe_allow_html=True
-            )
+            emoji = CLASS_EMOJIS[cls_id]
+            st.markdown(f"{emoji} **{cls_name}**")
+        
+        st.markdown("---")
+        st.markdown("""
+            <div style='text-align: center; padding: 1rem;'>
+                <p style='font-size: 0.9rem; color: #666;'>
+                    <b>Developed by</b><br>
+                    University of Energy and<br>
+                    Natural Resources (UENR)<br>
+                    African Technology Policy<br>
+                    Studies Network (ATPS)<br>
+                    International Development<br>
+                    Research Centre (IDRC)
+                </p>
+            </div>
+        """, unsafe_allow_html=True)
     
     # Load model
+    model_path = "best.pt"
+    
     if not os.path.exists(model_path):
         st.error(f"❌ Model not found at: {model_path}")
-        st.info("Please check the model path in the sidebar.")
+        st.info("Please ensure the model file 'best.pt' is in the same directory.")
         return
     
-    with st.spinner("Loading model..."):
+    with st.spinner("🔄 Initializing AI Model..."):
         model = load_model(model_path)
     
     if model is None:
         return
     
-    st.success("✅ Model loaded successfully!")
-    
     # Main content tabs
-    tab1, tab2, tab3, tab4 = st.tabs(["📷 Image Detection", "🎥 Video Detection", 
-                                       "📹 Webcam Detection", "ℹ️ About"])
+    tab1, tab2 = st.tabs(["📷 Image Detection", "🎥 Video Detection"])
     
     # Tab 1: Image Detection
     with tab1:
-        st.markdown("## Upload Image for Detection")
+        st.markdown("<br>", unsafe_allow_html=True)
         
-        uploaded_file = st.file_uploader(
-            "Choose an image...",
-            type=['png', 'jpg', 'jpeg'],
-            help="Upload a drone image of your farm"
-        )
+        col_upload, col_info = st.columns([2, 1])
+        
+        with col_upload:
+            uploaded_file = st.file_uploader(
+                "📤 Upload Drone Image",
+                type=['png', 'jpg', 'jpeg'],
+                help="Upload a drone image of your farm for analysis"
+            )
+        
+        with col_info:
+            st.info("""
+                **📝 Instructions:**
+                1. Upload a drone image
+                2. Wait for AI analysis
+                3. View detection results
+                4. Download annotated image
+            """)
         
         if uploaded_file is not None:
             # Load and display original image
             image = Image.open(uploaded_file)
             
+            st.markdown("<br>", unsafe_allow_html=True)
+            
             col1, col2 = st.columns(2)
             
             with col1:
-                st.markdown("### Original Image")
+                st.markdown("### 📸 Original Image")
+                st.markdown('<div class="image-container">', unsafe_allow_html=True)
                 st.image(image, use_container_width=True)
+                st.markdown('</div>', unsafe_allow_html=True)
             
             # Process image
-            with st.spinner("Detecting..."):
-                results = process_image(image, model, conf_threshold, iou_threshold)
-                annotated_image = draw_detections(image, results, show_labels, show_conf)
+            with st.spinner("🔍 Analyzing image with AI..."):
+                results = process_image(image, model)
+                annotated_image = draw_detections(image, results)
             
             with col2:
-                st.markdown("### Detection Results")
+                st.markdown("### 🎯 Detection Results")
+                st.markdown('<div class="image-container">', unsafe_allow_html=True)
                 st.image(annotated_image, use_container_width=True)
+                st.markdown('</div>', unsafe_allow_html=True)
             
             # Statistics
-            st.markdown("---")
-            st.markdown("## 📊 Detection Statistics")
+            st.markdown("<br>", unsafe_allow_html=True)
+            st.markdown("## 📊 Analysis Results")
             
             class_counts, class_conf = get_detection_stats(results)
             
-            # Display metrics
-            cols = st.columns(len(class_counts) if class_counts else 1)
-            for idx, (class_name, count) in enumerate(class_counts.items()):
-                with cols[idx]:
-                    st.metric(
-                        label=class_name,
-                        value=f"{count} detected",
-                        delta=f"{class_conf.get(class_name, 0):.2%} confidence"
-                    )
-            
-            if not class_counts:
-                st.info("No objects detected. Try adjusting the confidence threshold.")
+            # Display metrics in beautiful cards
+            if class_counts:
+                cols = st.columns(len(class_counts))
+                for idx, (class_name, count) in enumerate(class_counts.items()):
+                    with cols[idx]:
+                        # Find emoji for this class
+                        emoji = '🔹'
+                        for cls_id, name in CLASS_NAMES.items():
+                            if name == class_name:
+                                emoji = CLASS_EMOJIS[cls_id]
+                                break
+                        
+                        st.markdown(f"""
+                            <div class="metric-card">
+                                <h2 style='text-align: center; margin: 0;'>{emoji}</h2>
+                                <h3 style='text-align: center; margin: 10px 0;'>{class_name}</h3>
+                                <h1 style='text-align: center; color: #667eea; margin: 10px 0;'>{count}</h1>
+                                <p style='text-align: center; color: #666; margin: 0;'>
+                                    {class_conf.get(class_name, 0):.1%} confidence
+                                </p>
+                            </div>
+                        """, unsafe_allow_html=True)
+            else:
+                st.warning("⚠️ No objects detected in this image.")
             
             # Charts
             if class_counts:
-                st.markdown("---")
+                st.markdown("<br>", unsafe_allow_html=True)
                 create_stats_charts(class_counts, class_conf)
             
             # Download button
-            st.markdown("---")
+            st.markdown("<br>", unsafe_allow_html=True)
+            
             # Save annotated image
             img_bytes = tempfile.NamedTemporaryFile(delete=False, suffix='.png')
             annotated_image.save(img_bytes.name)
             
-            with open(img_bytes.name, 'rb') as f:
-                st.download_button(
-                    label="📥 Download Annotated Image",
-                    data=f,
-                    file_name="farm_detection_result.png",
-                    mime="image/png"
-                )
+            col_download1, col_download2, col_download3 = st.columns([1, 2, 1])
+            with col_download2:
+                with open(img_bytes.name, 'rb') as f:
+                    st.download_button(
+                        label="📥 Download Annotated Image",
+                        data=f,
+                        file_name="farm_detection_result.png",
+                        mime="image/png",
+                        use_container_width=True
+                    )
     
     # Tab 2: Video Detection
     with tab2:
-        st.markdown("## Upload Video for Detection")
+        st.markdown("<br>", unsafe_allow_html=True)
         
-        uploaded_video = st.file_uploader(
-            "Choose a video...",
-            type=['mp4', 'avi', 'mov'],
-            help="Upload a drone video of your farm"
-        )
+        col_upload, col_info = st.columns([2, 1])
+        
+        with col_upload:
+            uploaded_video = st.file_uploader(
+                "📤 Upload Drone Video",
+                type=['mp4', 'avi', 'mov'],
+                help="Upload a drone video of your farm for analysis"
+            )
+        
+        with col_info:
+            st.info("""
+                **📝 Instructions:**
+                1. Upload a drone video
+                2. Click 'Process Video'
+                3. Wait for AI analysis
+                4. Download processed video
+            """)
         
         if uploaded_video is not None:
             # Save uploaded video temporarily
             tfile = tempfile.NamedTemporaryFile(delete=False, suffix='.mp4')
             tfile.write(uploaded_video.read())
             
+            st.markdown("<br>", unsafe_allow_html=True)
+            
             # Display original video
-            st.markdown("### Original Video")
+            st.markdown("### 📹 Original Video")
+            st.markdown('<div class="image-container">', unsafe_allow_html=True)
             st.video(tfile.name)
+            st.markdown('</div>', unsafe_allow_html=True)
+            
+            st.markdown("<br>", unsafe_allow_html=True)
             
             # Process video
-            if st.button("🎬 Process Video", key="process_video"):
-                st.markdown("### Processing Video...")
+            col_btn1, col_btn2, col_btn3 = st.columns([1, 2, 1])
+            with col_btn2:
+                process_btn = st.button("🎬 Process Video", use_container_width=True)
+            
+            if process_btn:
+                st.markdown("### 🔄 Processing Video...")
                 progress_bar = st.progress(0)
+                status_text = st.empty()
                 
-                with st.spinner("Processing frames..."):
+                with st.spinner("Analyzing video frames with AI..."):
                     output_path, class_counts = process_video(
-                        tfile.name, model, conf_threshold, iou_threshold, progress_bar
+                        tfile.name, model, progress_bar
                     )
                 
-                st.success("✅ Video processing completed!")
+                status_text.empty()
+                st.success("✅ Video processing completed successfully!")
+                
+                st.markdown("<br>", unsafe_allow_html=True)
                 
                 # Display processed video
-                st.markdown("### Processed Video")
+                st.markdown("### 🎯 Processed Video")
+                st.markdown('<div class="image-container">', unsafe_allow_html=True)
                 st.video(output_path)
+                st.markdown('</div>', unsafe_allow_html=True)
                 
                 # Statistics
-                st.markdown("---")
-                st.markdown("## 📊 Video Detection Statistics")
+                st.markdown("<br>", unsafe_allow_html=True)
+                st.markdown("## 📊 Video Analysis Results")
                 
-                cols = st.columns(len(class_counts) if class_counts else 1)
-                for idx, (class_name, count) in enumerate(class_counts.items()):
-                    with cols[idx]:
-                        st.metric(label=class_name, value=f"{count} total")
+                if class_counts:
+                    cols = st.columns(len(class_counts))
+                    for idx, (class_name, count) in enumerate(class_counts.items()):
+                        with cols[idx]:
+                            # Find emoji for this class
+                            emoji = '🔹'
+                            for cls_id, name in CLASS_NAMES.items():
+                                if name == class_name:
+                                    emoji = CLASS_EMOJIS[cls_id]
+                                    break
+                            
+                            st.markdown(f"""
+                                <div class="metric-card">
+                                    <h2 style='text-align: center; margin: 0;'>{emoji}</h2>
+                                    <h3 style='text-align: center; margin: 10px 0;'>{class_name}</h3>
+                                    <h1 style='text-align: center; color: #667eea; margin: 10px 0;'>{count}</h1>
+                                    <p style='text-align: center; color: #666; margin: 0;'>
+                                        Total Detections
+                                    </p>
+                                </div>
+                            """, unsafe_allow_html=True)
                 
                 # Download processed video
-                with open(output_path, 'rb') as f:
-                    st.download_button(
-                        label="📥 Download Processed Video",
-                        data=f,
-                        file_name="farm_detection_video.mp4",
-                        mime="video/mp4"
-                    )
+                st.markdown("<br>", unsafe_allow_html=True)
+                col_download1, col_download2, col_download3 = st.columns([1, 2, 1])
+                with col_download2:
+                    with open(output_path, 'rb') as f:
+                        st.download_button(
+                            label="📥 Download Processed Video",
+                            data=f,
+                            file_name="farm_detection_video.mp4",
+                            mime="video/mp4",
+                            use_container_width=True
+                        )
     
-    # Tab 3: Webcam Detection
-    with tab3:
-        st.markdown("## Real-time Webcam Detection")
-        st.info("📹 This feature allows real-time detection using your webcam.")
-        
-        st.markdown("""
-        ### Instructions:
-        1. Click the button below to enable your webcam
-        2. Grant camera permissions when prompted
-        3. Point your camera at the target area
-        4. Detections will appear in real-time
-        """)
-        
-        enable_webcam = st.checkbox("Enable Webcam", value=False)
-        
-        if enable_webcam:
-            st.warning("⚠️ Webcam feature requires running locally with camera access.")
-            st.code("""
-# For local deployment with webcam:
-# Run this code separately
-
-import cv2
-from ultralytics import YOLO
-
-model = YOLO('your_model_path.pt')
-cap = cv2.VideoCapture(0)
-
-while True:
-    ret, frame = cap.read()
-    if not ret:
-        break
-    
-    results = model(frame, conf=0.25)
-    annotated_frame = results[0].plot()
-    
-    cv2.imshow('Farm Detection', annotated_frame)
-    
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
-
-cap.release()
-cv2.destroyAllWindows()
-            """, language="python")
-    
-    # Tab 4: About
-    with tab4:
-        st.markdown("## About This Application")
-        
-        st.markdown("""
-        ### 🌾 Farm Detection System
-        
-        This application uses YOLOv8 deep learning model to detect and classify:
-        - **Soil** - Bare ground areas
-        - **Healthy Crops** - Thriving vegetation
-        - **Unhealthy Crops** - Stressed or diseased plants
-        - **Other** - Additional features
-        
-        ### 🎯 Features
-        - Real-time object detection
-        - Image and video processing
-        - Detailed statistics and visualizations
-        - Adjustable detection parameters
-        - Export capabilities
-        
-        ### 🚀 How to Use
-        1. Upload an image or video from drone footage
-        2. Adjust detection parameters in the sidebar
-        3. View results with bounding boxes and statistics
-        4. Download annotated results
-        
-        ### 📊 Model Information
-        - **Architecture**: YOLOv8
-        - **Input Size**: 640x640 pixels
-        - **Classes**: 4 (Soil, Healthy, Unhealthy, Other)
-        - **Framework**: Ultralytics
-        
-        ### 🛠️ Technical Details
-        - Built with Streamlit
-        - Powered by Ultralytics YOLO
-        - OpenCV for video processing
-        - Plotly for visualizations
-        
-        ### 📝 Credits
-        Developed for precision agriculture and crop monitoring using AI-powered drone imagery analysis.
-        """)
-        
-        st.markdown("---")
-        st.markdown("""
-        <div style='text-align: center; color: #7f8c8d;'>
-        <p>Made with ❤️ for Smart Farming</p>
-        <p>© 2024 Farm Detection System</p>
+    # Footer
+    st.markdown("<br><br>", unsafe_allow_html=True)
+    st.markdown("""
+        <div class="footer">
+            <h3 style='margin-bottom: 1rem;'>🌾 Farm Detection System</h3>
+            <p style='font-size: 1.1rem; margin-bottom: 1rem;'>
+                Empowering Precision Agriculture with Artificial Intelligence
+            </p>
+            <p style='font-size: 0.95rem; opacity: 0.9;'>
+                <b>Developed by:</b><br>
+                University of Energy and Natural Resources (UENR) •
+                African Technology Policy Studies Network (ATPS) •
+                International Development Research Centre (IDRC)
+            </p>
+            <p style='margin-top: 1.5rem; font-size: 0.9rem; opacity: 0.8;'>
+                © 2024 UENR-ATPS-IDRC | All Rights Reserved
+            </p>
         </div>
-        """, unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
 
 
 if __name__ == '__main__':
