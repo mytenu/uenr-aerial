@@ -290,7 +290,7 @@ def main():
             )
     
     # Load model
-    model_path = "farm_detection/yolov8n_farm/weights/best.pt"
+    model_path = "best.pt"
     
     if not os.path.exists(model_path):
         st.error("🚨 Model not found. Please ensure the model is at: farm_detection/yolov8n_farm/weights/best.pt")
