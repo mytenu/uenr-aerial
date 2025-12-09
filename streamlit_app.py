@@ -34,19 +34,28 @@ def get_base64_image(image_path):
 CLASS_NAMES = {0: 'Soil', 1: 'Healthy Crop', 2: 'Unhealthy Crop', 3: 'Other'}
 CLASS_COLORS = {0: (139, 69, 19), 1: (34, 139, 34), 2: (255, 69, 0), 3: (128, 128, 128)}
 CLASS_COLORS_HEX = {0: '#8B4513', 1: '#228B22', 2: '#FF4500', 3: '#808080'}
-
 @st.cache_resource
 def load_model(model_path):
     try:
+        if YOLO is None:
+            return None
         return YOLO(model_path)
     except Exception as e:
-        st.error(f"Error loading model: {str(e)}")
+        st.error(str(e))
         return None
 
+
 def process_image(image, model):
+    if model is None:
+        st.error("YOLO could not load because OpenCV is unavailable.")
+        return None
+
     img_array = np.array(image)
-    results = model.predict(img_array, conf=0.25, iou=0.45, verbose=False)
+
+    # direct tensor inference, avoids cv2
+    results = model(img_array, conf=0.25, iou=0.45, verbose=False)
     return results[0]
+
 
 def draw_detections(image, results):
     """Draw bounding boxes using PIL instead of OpenCV"""
